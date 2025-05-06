@@ -88,18 +88,33 @@ def open_pivot_window():
     execute_pivot_button.grid(row=len(pivot_window_elements), column=len(element_row), padx=5, pady=5)
 
 def execute_pivot():
-    var_names=[]
+#make sure that all vaiables have different names
+    var_names = []
     for i in range(int(variables.get())):
         var_names.append(pivot_window_elements[0][i+2].get())
     if (len(var_names) != len(set(var_names))):
         error_window("Les variables doivent avoir des noms uniques.")
         return
+
+#make sure all base variables have different names and are part of the problem variables
+    init_base = []
+    new_base = []
+    try:
+        for i in range(int(constraints.get())):
+            init_base.append(var_names.index(pivot_window_elements[i+1][0].get()))
+            new_base.append(var_names.index(pivot_window_elements[i+1][1].get()))
+    except ValueError:
+        error_window("Les variables de bases doivent être des variables du problème.")
+        return
+    if (len(init_base) != len(set(init_base)) or len(new_base) != len(set(new_base))):
+        error_window("Les variables de bases doivent être uniques.")
+        return
+
     error_window(str(var_names))
 
 def open_pivot_menu():
     pivot_menu_window = tk.Toplevel()
     pivot_menu_window.title("Pivoteur du simplexe")
-    #pivot_menu_window.geometry("400x200")
     pivot_menu_window.iconbitmap(os.path.join(basedir, "icon.ico"))
 
     pivot_menu_label_constraints = tk.Label(pivot_menu_window, text="Nombre de contraintes")
