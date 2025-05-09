@@ -88,7 +88,7 @@ def open_pivot_window():
     execute_pivot_button.grid(row=len(pivot_window_elements), column=len(element_row), padx=5, pady=5)
 
 def execute_pivot():
-#make sure that all vaiables have different names
+#make sure that all problem vaiables have different names
     var_names = []
     for i in range(int(variables.get())):
         var_names.append(pivot_window_elements[0][i+2].get())
