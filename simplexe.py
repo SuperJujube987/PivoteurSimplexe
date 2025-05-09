@@ -8,8 +8,7 @@ Created on Sat May  3 10:05:17 2025
 import os
 import tkinter as tk
 from tkinter import ttk
-import numpy as np
-from fractions import Fraction
+import sympy
 
 basedir = os.path.dirname(__file__)
 
@@ -30,7 +29,7 @@ variables = tk.StringVar(value="1")
 #variable to store the names of the variables in the problem
 var_names = []
 
-#variables to store the bases when doing the pivot
+#variables to store the indices of the base variables when doing the pivot
 init_base = []
 new_base = []
 
@@ -87,14 +86,13 @@ def open_pivot_window():
 
     execute_pivot_button.grid(row=len(pivot_window_elements), column=len(element_row), padx=5, pady=5)
 
-def execute_pivot():
+def verify_pivot():
 #make sure that all problem vaiables have different names
     var_names = []
     for i in range(int(variables.get())):
         var_names.append(pivot_window_elements[0][i+2].get())
     if (len(var_names) != len(set(var_names))):
-        error_window("Les variables doivent avoir des noms uniques.")
-        return
+        return (False, "Les variables doivent avoir des noms uniques.")
 
 #make sure all base variables have different names and are part of the problem variables
     init_base = []
@@ -104,13 +102,82 @@ def execute_pivot():
             init_base.append(var_names.index(pivot_window_elements[i+1][0].get()))
             new_base.append(var_names.index(pivot_window_elements[i+1][1].get()))
     except ValueError:
-        error_window("Les variables de bases doivent être des variables du problème.")
-        return
+        return (False, "Les variables de bases doivent être des variables du problème.")
     if (len(init_base) != len(set(init_base)) or len(new_base) != len(set(new_base))):
-        error_window("Les variables de bases doivent être uniques.")
+        return (False, "Les variables de bases doivent être uniques.")
+
+#all is good
+    return (True, (var_names, init_base, new_base))
+
+def execute_pivot():
+#make sure the table is pivotable
+    ver_test = verify_pivot()
+    if (ver_test[0] == False):
+        error_window(ver_test[1])
         return
 
-    error_window(str(var_names))
+    var_names = ver_test[1][0]
+    init_base = ver_test[1][1]
+    new_base = ver_test[1][2]
+    hors_base = []
+
+    for i in range(int(variables.get())):
+        if (i not in new_base):
+            hors_base.append(i)
+
+#make the base submatrix
+    arr = []
+    for j in new_base:
+        col = []
+        for i in range(int(constraints.get())):
+            col.append(pivot_window_elements[i+1][j+2].get())
+        arr.append(col)
+
+    B = sympy.Matrix(arr).T
+
+#make the submatrix outside the base
+    arr = []
+    for j in hors_base:
+        col = []
+        for i in range(int(constraints.get())):
+            col.append(pivot_window_elements[i+1][j+2].get())
+        arr.append(col)
+
+    N = sympy.Matrix(arr).T
+
+#make the base cost vector
+    row = []
+    for j in new_base:
+        row.append(pivot_window_elements[-1][j+2].get())
+
+    cB = sympy.Matrix(row).T
+
+#make the cost vector oustide the base
+    row = []
+    for j in hors_base:
+        row.append(pivot_window_elements[-1][j+2].get())
+
+    cN = sympy.Matrix(row).T
+
+#make the object vector
+    col = []
+    for i in range(int(variables.get())):
+        col.append(pivot_window_elements[i+1][-1].get())
+
+    b = sympy.Matrix(col)
+
+#take the object value
+    Z = sympy.Matrix([pivot_window_elements[-1][-1].get()])*-1
+
+#calculate other martices
+    B_inv = B**-1
+    B_invN = B_inv*N
+    moinsPi = (cB*B_inv)*-1
+    cN_bar = cN+moinsPi*N
+    b_bar = B_inv*b
+    moinsZ_bar = (Z*-1)-(cB*b_bar)
+
+    error_window(f"{var_names=} \n{init_base=} \n{new_base=} \n{hors_base=} \n{B=} \n{N=} \n{cB=} \n{cN=} \n{b=} \n{Z=}")
 
 def open_pivot_menu():
     pivot_menu_window = tk.Toplevel()
