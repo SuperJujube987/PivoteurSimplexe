@@ -109,6 +109,56 @@ def verify_pivot():
 #all is good
     return (True, (var_names, init_base, new_base))
 
+def verify_pivot_matrices(B,N,cB,cN,b,Z,I,cI):
+#make sure the base matrix is invertible
+    if (B.det() == 0):
+        return (False, "La matrice de la nouvelle base doit être inversible.")
+#make sure the initial base matrix is the identity
+    if (I != sympy.eye(int(constraints.get()))):
+        return (False, """La matrice de la base initiale doit être la matrice
+                identité pour que le problème soit sous forme canonique.""")
+#make sure the initial base costs are 0
+    if (cI != sympy.zeros(1, int(constraints.get()))):
+        return (False, """Les coûts associés à la base initiale doivent être
+                nuls pour que le problème soit sous forme canonique.""")
+
+#all is good
+    return (True, None)
+
+def display_table(var_names, new_base, values):
+    table_window = tk.Toplevel()
+    table_window.title("Tableau pivoté")
+    table_window.iconbitmap(os.path.join(basedir, "icon.ico"))
+
+    table = []
+    row = []
+
+    row.append(tk.Label(table_window, text="B"))
+    for j in var_names:
+        row.append(tk.Label(table_window, text=j))
+    row.append(tk.Label(table_window, text="TDD"))
+    table.append(row)
+
+    for i in range(len(new_base)):
+        row = []
+        row.append(tk.Label(table_window, text=new_base[i]))
+        for j in values.row(i):
+            row.append(tk.Label(table_window, text=str(j)))
+        table.append(row)
+    row = []
+    row.append(tk.Label(table_window, text="-Z"))
+    for j in values.row(-1):
+        row.append(tk.Label(table_window, text=str(j)))
+    table.append(row)
+
+    ok_button = tk.Button(table_window, text="OK", command=table_window.destroy)
+
+    for i in range(len(table)):
+        for j in range(len(row)):
+            table[i][j].grid(row=i, column=j, padx=5, pady=5)
+
+    ok_button.grid(row=len(table), column=len(row), padx=5, pady=5)
+
 def execute_pivot():
 #make sure the table is pivotable
     ver_test = verify_pivot()
@@ -122,7 +172,7 @@ def execute_pivot():
     hors_base = []
 
     for i in range(int(variables.get())):
-        if (i not in new_base):
+        if (i not in init_base):
             hors_base.append(i)
 
 #make the base submatrix
@@ -161,13 +211,37 @@ def execute_pivot():
 
 #make the object vector
     col = []
-    for i in range(int(variables.get())):
+    for i in range(int(constraints.get())):
         col.append(pivot_window_elements[i+1][-1].get())
 
     b = sympy.Matrix(col)
 
 #take the object value
     Z = sympy.Matrix([pivot_window_elements[-1][-1].get()])*-1
+
+#make the initial base submatrix
+    arr = []
+    for j in init_base:
+        col = []
+        for i in range(int(constraints.get())):
+            col.append(pivot_window_elements[i+1][j+2].get())
+        arr.append(col)
+
+    I = sympy.Matrix(arr).T
+
+#make the cost vector of the initial base
+    row = []
+    for j in init_base:
+        row.append(pivot_window_elements[-1][j+2].get())
+
+    cI = sympy.Matrix(row).T
+
+#verify that the matrices are valid for pivot
+    ver_test = verify_pivot_matrices(B, N, cB, cN, b, Z, I, cI)
+
+    if (ver_test[0] == False):
+        error_window(ver_test[1])
+        return
 
 #calculate other martices
     B_inv = B**-1
@@ -177,7 +251,33 @@ def execute_pivot():
     b_bar = B_inv*b
     moinsZ_bar = (Z*-1)-(cB*b_bar)
 
-    error_window(f"{var_names=} \n{init_base=} \n{new_base=} \n{hors_base=} \n{B=} \n{N=} \n{cB=} \n{cN=} \n{b=} \n{Z=}")
+#make the resulting table
+    arr = []
+    col = []
+
+    for i in range(int(variables.get())):
+        col = []
+        if (i in init_base):
+            pos = init_base.index(i)
+            for j in range(sympy.shape(B_inv)[0]):
+                col.append(B_inv.col(pos)[j])
+            col.append(moinsPi[pos])
+        else:
+            pos = hors_base.index(i)
+            for j in range(sympy.shape(B_invN)[0]):
+                col.append(B_invN.col(pos)[j])
+            col.append(cN_bar[j])
+        arr.append(col)
+
+    col = []
+    for a in b_bar:
+        col.append(a)
+    col.append(moinsZ_bar)
+    arr.append(col)
+
+    values = sympy.Matrix(arr).T
+
+    display_table(var_names, new_base, values)
 
 def open_pivot_menu():
     pivot_menu_window = tk.Toplevel()
