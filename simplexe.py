@@ -141,7 +141,7 @@ def display_table(var_names, new_base, values):
 
     for i in range(len(new_base)):
         row = []
-        row.append(tk.Label(table_window, text=new_base[i]))
+        row.append(tk.Label(table_window, text=var_names[new_base[i]]))
         for j in values.row(i):
             row.append(tk.Label(table_window, text=str(j)))
         table.append(row)
@@ -272,7 +272,7 @@ def execute_pivot():
     col = []
     for a in b_bar:
         col.append(a)
-    col.append(moinsZ_bar)
+    col.append(moinsZ_bar[0])
     arr.append(col)
 
     values = sympy.Matrix(arr).T
