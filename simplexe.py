@@ -12,6 +12,14 @@ import sympy
 
 basedir = os.path.dirname(__file__)
 
+try:
+    from ctypes import windll
+
+    myappid = "SuperJujube.SolveurSimplexe.PivoteurSimplexe.v1"
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except ImportError:
+    pass
+
 menu_window = tk.Tk()
 menu_window.title("Solveur du simplexe")
 menu_window.geometry("350x100")
@@ -266,7 +274,7 @@ def execute_pivot():
             pos = hors_base.index(i)
             for j in range(sympy.shape(B_invN)[0]):
                 col.append(B_invN.col(pos)[j])
-            col.append(cN_bar[j])
+            col.append(cN_bar[pos])
         arr.append(col)
 
     col = []
