@@ -90,9 +90,14 @@ def open_pivot_window():
 
     for i in range(len(pivot_window_elements)):
         for j in range(len(element_row)):
-            pivot_window_elements[i][j].grid(row=i, column=j, padx=5, pady=5)
+            pivot_window_elements[i][j].grid(row=i, column=j, padx=5, pady=5, sticky="wens")
 
-    execute_pivot_button.grid(row=len(pivot_window_elements), column=len(element_row), padx=5, pady=5)
+    execute_pivot_button.grid(row=len(pivot_window_elements), column=len(element_row), padx=5, pady=5, sticky="wens")
+
+    for i in range(len(pivot_window_elements)):
+        pivot_window.grid_rowconfigure(i, weight=1)
+    for j in range(len(pivot_window_elements[0])):
+        pivot_window.grid_columnconfigure(j, weight=1)
 
 def verify_pivot():
 #make sure that all problem vaiables have different names
@@ -163,9 +168,14 @@ def display_table(var_names, new_base, values):
 
     for i in range(len(table)):
         for j in range(len(row)):
-            table[i][j].grid(row=i, column=j, padx=5, pady=5)
+            table[i][j].grid(row=i, column=j, padx=5, pady=5, sticky="wens")
 
-    ok_button.grid(row=len(table), column=len(row), padx=5, pady=5)
+    ok_button.grid(row=len(table), column=len(row), padx=5, pady=5, sticky="wens")
+
+    for i in range(len(table)):
+        table_window.grid_rowconfigure(i, weight=1)
+    for j in range(len(row)):
+        table_window.grid_columnconfigure(j, weight=1)
 
 def execute_pivot():
 #make sure the table is pivotable
