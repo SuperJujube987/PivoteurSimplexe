@@ -8,7 +8,7 @@ Cette application a été conçue pour assister les enseignants et étudiants qu
 
 ### Installer
 
-Télécharger l'[installateur](/InstallPivoteurSimplexe.exe).
+Télécharger l'[installateur](https://github.com/SuperJujube987/PivoteurSimplexe/releases/download/v1.1.0/InstallPivoteurSimplexe.exe).
 
 ## Auteur
 
