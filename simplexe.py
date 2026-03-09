@@ -15,7 +15,7 @@ basedir = os.path.dirname(__file__)
 try:
     from ctypes import windll
 
-    myappid = "SuperJujube.SolveurSimplexe.PivoteurSimplexe.v1"
+    myappid = "SuperJujube.SolveurSimplexe.PivoteurSimplexe.v1.1"
     windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 except ImportError:
     pass
@@ -26,7 +26,7 @@ menu_window.geometry("350x100")
 menu_window.iconbitmap(os.path.join(basedir, "icon.ico"))
 
 #list of options available to the user
-options = ["Choisir l'option désirée", "Effectuer un pivot", "Standardiser un problème"]
+options = ["Choisir l'option désirée", "Effectuer un pivot", "Standardiser un problème", "À propos"]
 
 #variable to store the number of constraints in the problem
 constraints = tk.StringVar(value="1")
@@ -320,6 +320,24 @@ def open_std_menu():
     std_menu_window.geometry("500x300")
     std_menu_window.iconbitmap(os.path.join(basedir, "icon.ico"))
 
+def open_about_window():
+    about_window = tk.Toplevel()
+    about_window.title("À propos")
+    about_window.iconbitmap(os.path.join(basedir, "icon.ico"))
+
+    about_label_name = tk.Label(about_window, text="Pivoteur du simplexe")
+    about_label_version = tk.Label(about_window, text="Version 1.1, 9 mars 2026")
+    about_label_auth = tk.Label(about_window, text="Application crée par Julien Houle")
+
+    about_label_name.grid(row=0, column=0, padx=5, pady=5)
+    about_label_version.grid(row=1, column=0, padx=5, pady=5)
+    about_label_auth.grid(row=2, column=0, padx=5, pady=5)
+
+    about_window.grid_rowconfigure(0, weight=1)
+    about_window.grid_rowconfigure(1, weight=1)
+    about_window.grid_rowconfigure(2, weight=1)
+    about_window.grid_columnconfigure(0, weight=1)
+
 def handle_menu_button_press():
     if (menu_cbox.get() == options[0]):
         pass
@@ -327,6 +345,8 @@ def handle_menu_button_press():
         open_pivot_menu()
     elif (menu_cbox.get() == options[2]):
         open_std_menu()
+    elif (menu_cbox.get() == options[3]):
+        open_about_window()
 
 #initialize a combo box with the options of what the app can do for the user
 menu_cbox = ttk.Combobox(menu_window, values=options)
